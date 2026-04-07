@@ -58,26 +58,26 @@ class AODN_Changelog_Admin {
 	}
 
 	public function handle_actions() {
-		if ( ! isset( $_GET['page'] ) || strpos( $_GET['page'], 'aodn-changelog-logger' ) === false ) {
+		if ( ! isset( $_GET['page'] ) || strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'aodn-changelog-logger' ) === false ) {
 			return;
 		}
 
 		// Delete single entry
-		if ( isset( $_GET['action'] ) && $_GET['action'] === 'delete' && isset( $_GET['entry_id'] ) ) {
+		if ( isset( $_GET['action'] ) && sanitize_text_field( wp_unslash( $_GET['action'] ) ) === 'delete' && isset( $_GET['entry_id'] ) ) {
 			check_admin_referer( 'aodn_cl_delete_' . absint( $_GET['entry_id'] ) );
 			if ( current_user_can( 'manage_options' ) ) {
 				AODN_Changelog_DB::delete_log( absint( $_GET['entry_id'] ) );
-				wp_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger', 'message' => 'deleted' ), admin_url( 'admin.php' ) ) );
+				wp_safe_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger', 'message' => 'deleted' ), admin_url( 'admin.php' ) ) );
 				exit;
 			}
 		}
 
 		// Purge all
-		if ( isset( $_GET['action'] ) && $_GET['action'] === 'purge_all' ) {
+		if ( isset( $_GET['action'] ) && sanitize_text_field( wp_unslash( $_GET['action'] ) ) === 'purge_all' ) {
 			check_admin_referer( 'aodn_cl_purge_all' );
 			if ( current_user_can( 'manage_options' ) ) {
 				AODN_Changelog_DB::purge_all();
-				wp_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger', 'message' => 'purged' ), admin_url( 'admin.php' ) ) );
+				wp_safe_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger', 'message' => 'purged' ), admin_url( 'admin.php' ) ) );
 				exit;
 			}
 		}
@@ -98,7 +98,7 @@ class AODN_Changelog_Admin {
 		);
 
 		update_option( 'aodn_cl_settings', $settings );
-		wp_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger-settings', 'message' => 'saved' ), admin_url( 'admin.php' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'page' => 'aodn-changelog-logger-settings', 'message' => 'saved' ), admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
@@ -107,11 +107,13 @@ class AODN_Changelog_Admin {
 			return;
 		}
 
-		$filter_type  = isset( $_GET['filter_type'] ) ? sanitize_key( $_GET['filter_type'] ) : '';
-		$filter_from  = isset( $_GET['date_from'] ) ? sanitize_text_field( $_GET['date_from'] ) : '';
-		$filter_to    = isset( $_GET['date_to'] ) ? sanitize_text_field( $_GET['date_to'] ) : '';
-		$search       = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce not needed for read-only GET filters on admin page
+		$filter_type  = isset( $_GET['filter_type'] ) ? sanitize_key( wp_unslash( $_GET['filter_type'] ) ) : '';
+		$filter_from  = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
+		$filter_to    = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '';
+		$search       = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		$current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
+		// phpcs:enable
 
 		$results = AODN_Changelog_DB::get_logs( array(
 			'update_type' => $filter_type,
@@ -148,11 +150,18 @@ class AODN_Changelog_Admin {
 				</div>
 			</div>
 
-			<?php if ( isset( $_GET['message'] ) ) : ?>
+			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status display
+			if ( isset( $_GET['message'] ) ) :
+				$aodn_cl_msg = sanitize_key( wp_unslash( $_GET['message'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			?>
 			<div class="notice notice-success is-dismissible"><p>
 				<?php
-				if ( $_GET['message'] === 'deleted' ) esc_html_e( 'Log entry deleted.', 'aodn-changelog-logger' );
-				if ( $_GET['message'] === 'purged' ) esc_html_e( 'All log entries purged.', 'aodn-changelog-logger' );
+				if ( 'deleted' === $aodn_cl_msg ) {
+					esc_html_e( 'Log entry deleted.', 'aodn-changelog-logger' );
+				}
+				if ( 'purged' === $aodn_cl_msg ) {
+					esc_html_e( 'All log entries purged.', 'aodn-changelog-logger' );
+				}
 				?>
 			</p></div>
 			<?php endif; ?>
@@ -274,7 +283,10 @@ class AODN_Changelog_Admin {
 			<div class="aodn-cl-pagination tablenav">
 				<div class="tablenav-pages">
 					<span class="displaying-num">
-						<?php printf( esc_html( _n( '%s item', '%s items', $total, 'aodn-changelog-logger' ) ), number_format_i18n( $total ) ); ?>
+						<?php
+						/* translators: %s: Number of items in the log */
+						printf( esc_html( _n( '%s item', '%s items', $total, 'aodn-changelog-logger' ) ), esc_html( number_format_i18n( $total ) ) );
+						?>
 					</span>
 					<?php
 					$base = add_query_arg( array( 'page' => 'aodn-changelog-logger', 'filter_type' => $filter_type, 'date_from' => $filter_from, 'date_to' => $filter_to, 's' => $search ), admin_url( 'admin.php' ) );
@@ -290,7 +302,10 @@ class AODN_Changelog_Admin {
 			<?php endif; ?>
 
 			<p class="aodn-cl-footer-credit">
-				<?php printf( esc_html__( 'AODN Changelog Logger by %s — More free tools at %s', 'aodn-changelog-logger' ), '<a href="https://aiordienow.com" target="_blank">AI Or Die Now</a>', '<a href="https://aiordienow.com/product-category/free-plugins/" target="_blank">aiordienow.com</a>' ); ?>
+				<?php
+				/* translators: 1: Author link, 2: Website link */
+				printf( wp_kses( __( 'AODN Changelog Logger by %1$s — More free tools at %2$s', 'aodn-changelog-logger' ), array( 'a' => array( 'href' => array(), 'target' => array() ) ) ), '<a href="https://aiordienow.com" target="_blank">AI Or Die Now</a>', '<a href="https://aiordienow.com/product-category/free-plugins/" target="_blank">aiordienow.com</a>' );
+				?>
 			</p>
 		</div>
 		<?php
@@ -316,7 +331,8 @@ class AODN_Changelog_Admin {
 				</div>
 			</div>
 
-			<?php if ( isset( $_GET['message'] ) && $_GET['message'] === 'saved' ) : ?>
+			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status display
+			if ( isset( $_GET['message'] ) && 'saved' === sanitize_key( wp_unslash( $_GET['message'] ) ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'aodn-changelog-logger' ); ?></p></div>
 			<?php endif; ?>
 

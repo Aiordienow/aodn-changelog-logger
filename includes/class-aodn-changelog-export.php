@@ -19,9 +19,9 @@ class AODN_Changelog_Export {
 		check_admin_referer( 'aodn_cl_export', 'nonce' );
 
 		$args = array(
-			'update_type' => isset( $_GET['filter_type'] ) ? sanitize_key( $_GET['filter_type'] ) : '',
-			'date_from'   => isset( $_GET['date_from'] ) ? sanitize_text_field( $_GET['date_from'] ) : '',
-			'date_to'     => isset( $_GET['date_to'] ) ? sanitize_text_field( $_GET['date_to'] ) : '',
+			'update_type' => isset( $_GET['filter_type'] ) ? sanitize_key( wp_unslash( $_GET['filter_type'] ) ) : '',
+			'date_from'   => isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '',
+			'date_to'     => isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '',
 		);
 
 		$rows = AODN_Changelog_DB::get_all_for_export( $args );

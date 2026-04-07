@@ -7,8 +7,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 global $wpdb;
 
-$table_name = $wpdb->prefix . 'aodn_changelog';
-$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" ); // phpcs:ignore
+$aodn_cl_table_name = $wpdb->prefix . 'aodn_changelog';
+$wpdb->query( "DROP TABLE IF EXISTS {$aodn_cl_table_name}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 delete_option( 'aodn_cl_version' );
 delete_option( 'aodn_cl_settings' );

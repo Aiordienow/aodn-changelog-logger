@@ -2,7 +2,7 @@
 Contributors: aiordienow
 Tags: changelog, update log, plugin updates, audit trail, version history
 Requires at least: 6.4
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 8.2
 Stable tag: 1.1.0
 License: GPLv2 or later
