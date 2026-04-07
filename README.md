@@ -36,7 +36,7 @@ AODN Changelog Logger answers that. Install it and every update is recorded auto
 
 ### From GitHub
 
-1. Download the [latest release](https://github.com/warkitten785/aodn-changelog-logger/releases/latest)
+1. Download the [latest release](https://github.com/Aiordienow/aodn-changelog-logger/releases/latest)
 2. Upload the zip via **WordPress Admin → Plugins → Add New → Upload Plugin**
 3. Activate — logging starts immediately
 
@@ -68,13 +68,13 @@ Download it, install it, use it on as many sites as you want.
 
 ## Contributing
 
-This is open source under GPL v2. Fork it, customize it, submit PRs. If you find a bug, [open an issue](https://github.com/warkitten785/aodn-changelog-logger/issues).
+This is open source under GPL v2. Fork it, customize it, submit PRs. If you find a bug, [open an issue](https://github.com/Aiordienow/aodn-changelog-logger/issues).
 
 ## Support
 
 - [AI Or Die Now](https://aiordienow.com) — our home base
 - [Product page](https://aiordienow.com/arsenal/aodn-changelog-logger/) — full description and free download
-- [Report an issue](https://github.com/warkitten785/aodn-changelog-logger/issues)
+- [Report an issue](https://github.com/Aiordienow/aodn-changelog-logger/issues)
 
 ## Changelog
 
